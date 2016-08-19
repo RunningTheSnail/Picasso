@@ -36,3 +36,4 @@ jniLibs
 build
 local.properties
 reports
+/.buildscript/
