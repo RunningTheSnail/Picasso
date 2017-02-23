@@ -42,6 +42,7 @@ public final class OkHttp3Downloader implements Downloader {
      * Create new downloader that uses OkHttp. This will install an image cache into your application
      * cache directory.
      */
+    //默认的存储路径  cache/picasso-cache
     public OkHttp3Downloader(final Context context) {
         this(Utils.createDefaultCacheDir(context));
     }
@@ -84,6 +85,7 @@ public final class OkHttp3Downloader implements Downloader {
      */
 
     //使用指定的OkHttpClient
+    //picasso使用的client可以和其他网络请求的client 是同一个,配置同一个缓存目录
     public OkHttp3Downloader(OkHttpClient client) {
         this.client = client;
         this.cache = client.cache();

@@ -131,6 +131,8 @@ class Stats {
         return totalSize / count;
     }
 
+
+    //保证了数据的同步
     private static class StatsHandler extends Handler {
 
         private final Stats stats;

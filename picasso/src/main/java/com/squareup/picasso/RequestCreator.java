@@ -590,6 +590,7 @@ public class RequestCreator {
         Request request = createRequest(started);
         String requestKey = createKey(request);
 
+        //判断是否从内存中读取
         if (shouldReadFromMemoryCache(memoryPolicy)) {
             Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
             if (bitmap != null) {
@@ -745,7 +746,7 @@ public class RequestCreator {
 
         //创建请求
         Request request = createRequest(started);
-        //url
+        //根据不同的配置信息创建key ， 下次配置相同的请求可以直接从磁盘中获取
         String requestKey = createKey(request);
 
         if (shouldReadFromMemoryCache(memoryPolicy)) {
@@ -753,12 +754,15 @@ public class RequestCreator {
             //key url , value bitmap
             Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
             if (bitmap != null) {
+                //wtf 取消request ?
                 picasso.cancelRequest(target);
+                //直接设置显示,因为在主线程
                 setBitmap(target, picasso.context, bitmap, MEMORY, noFade, picasso.indicatorsEnabled);
                 //日志调试开启(获取图片加载的来源)
                 if (picasso.loggingEnabled) {
                     log(OWNER_MAIN, VERB_COMPLETED, request.plainId(), "from " + MEMORY);
                 }
+                //图片加载结果回调
                 if (callback != null) {
                     callback.onSuccess();
                 }

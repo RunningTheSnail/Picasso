@@ -210,11 +210,13 @@ public class Picasso {
         requestHandlers = Collections.unmodifiableList(allRequestHandlers);
 
         this.stats = stats;
+        //弱引用,要发生oom时才回收这些对象
         this.targetToAction = new WeakHashMap<Object, Action>();
         this.targetToDeferredRequestCreator = new WeakHashMap<ImageView, DeferredRequestCreator>();
         this.indicatorsEnabled = indicatorsEnabled;
         this.loggingEnabled = loggingEnabled;
         this.referenceQueue = new ReferenceQueue<Object>();
+        //清理现场
         this.cleanupThread = new CleanupThread(referenceQueue, HANDLER);
         this.cleanupThread.start();
     }
@@ -744,6 +746,7 @@ public class Picasso {
         //单例
         if (singleton == null) {
             synchronized (Picasso.class) {
+                //双重判定
                 if (singleton == null) {
                     singleton = new Builder(context).build();
                 }
@@ -757,6 +760,7 @@ public class Picasso {
      * <p/>
      * This method must be called before any calls to {@link #with} and may only be called once.
      */
+    //设置成单例
     public static void setSingletonInstance(@NonNull Picasso picasso) {
         if (picasso == null) {
             throw new IllegalArgumentException("Picasso must not be null.");
@@ -777,13 +781,15 @@ public class Picasso {
         private final Context context;
         private Downloader downloader;
         private ExecutorService service;
+        //缓存策略
         private Cache cache;
         private Listener listener;
         private RequestTransformer transformer;
         private List<RequestHandler> requestHandlers;
         private Bitmap.Config defaultBitmapConfig;
-
+        //加载指示器
         private boolean indicatorsEnabled;
+        //是否开启日志
         private boolean loggingEnabled;
 
         /**
@@ -937,10 +943,12 @@ public class Picasso {
 
             //最好自己配置Downloader,使用指定的OkHttpClient
             if (downloader == null) {
+                //修改Downloader 就能修改磁盘存储的位置
                 downloader = Utils.createDefaultDownloader(context);
             }
             if (cache == null) {
                 //LruCache 提供内存缓存,内部采用LinkedHashMap实现
+                //LinkedHashMap实现原理  链表(拥有一个头)+HashMap 所有的元素添加删除在链表中都会执行下
                 cache = new LruCache(context);
             }
             if (service == null) {
@@ -951,9 +959,9 @@ public class Picasso {
                 //默认RequestTransFormer(什么都不干)
                 transformer = RequestTransformer.IDENTITY;
             }
-
+            //缓存命中,丢失统计
             Stats stats = new Stats(cache);
-
+            //用于任务的调度
             Dispatcher dispatcher = new Dispatcher(context, service, HANDLER, downloader, cache, stats);
 
             return new Picasso(context, dispatcher, cache, listener, transformer, requestHandlers, stats,
